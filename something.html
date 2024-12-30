@@ -1,0 +1,392 @@
+\<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Donate with Square (Sleek Dark & Light)</title>
+
+  <!-- Square Web Payments SDK (Sandbox) -->
+  <script src="https://sandbox.web.squarecdn.com/v1/square.js"></script>
+
+  <!-- Google font: Lato -->
+  <link rel="preconnect" href="https://fonts.gstatic.com" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap"
+    rel="stylesheet"
+  />
+
+  <style>
+    /* Base Reset */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Full height with background image */
+    html, body {
+      height: 100%;
+      font-family: 'Lato', sans-serif;
+      /* Smoky Mountains background */
+      background: url("https://images.unsplash.com/photo-1611585075861-30e56ecc361b?ixlib=rb-4.0.3") 
+                  no-repeat center center fixed;
+      background-size: cover;
+      position: relative;
+    }
+
+    /* Light overlay for background */
+    body::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: rgba(255,255,255,0.4);
+      z-index: 0;
+    }
+
+    /* Center the donation card */
+    .page-wrapper {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100%;
+      padding: 2rem;
+    }
+
+    /* Donation card style */
+    .donation-card {
+      background: #fafafa;
+      border-radius: 10px;
+      box-shadow: 0 2px 15px rgba(0,0,0,0.15);
+      max-width: 400px;
+      width: 100%;
+      padding: 2rem;
+      text-align: center;
+    }
+
+    .donation-card h1 {
+      font-size: 1.8rem;
+      color: #2b2b2b;
+      margin-bottom: 1rem;
+      font-weight: 700;
+    }
+
+    /* License Plate Field */
+    .license-plate-field {
+      text-align: left;
+      margin-bottom: 1.5rem;
+    }
+    .license-plate-field label {
+      display: inline-block;
+      margin-bottom: 0.4rem;
+      font-weight: 700;
+      color: #333;
+    }
+    .license-plate-field input[type="text"] {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 1rem;
+    }
+
+    /* Donation Options */
+    .donation-options {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin: 1.5rem 0 2rem;
+      align-items: flex-start;
+    }
+    .donation-option {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 1rem;
+      color: #444;
+      cursor: pointer;
+    }
+
+    /* Radio button with centered dot */
+    .donation-option input[type="radio"] {
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border: 2px solid #ce1e27;
+      border-radius: 50%;
+      position: relative;
+      cursor: pointer;
+    }
+    .donation-option input[type="radio"]:checked::before {
+      content: "";
+      position: absolute;
+      top: 4px;
+      left: 4px;
+      width: 8px;
+      height: 8px;
+      background: #ce1e27;
+      border-radius: 50%;
+    }
+
+    .donation-option input[type="number"] {
+      width: 5rem;
+      padding: 0.4rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 1rem;
+      font-family: inherit;
+    }
+
+    /* Square Payment Container */
+    #card-container {
+      margin: 1rem 0;
+      text-align: left;
+    }
+
+    /* Donate button with #ce1e27 background */
+    .donate-btn {
+      display: inline-block;
+      width: 100%;
+      padding: 1rem;
+      background: #ce1e27;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+    .donate-btn:hover {
+      background: #b71a21;
+    }
+
+    /* Status Messages */
+    .message {
+      margin-top: 1rem;
+      font-weight: 600;
+      display: none; /* hidden by default */
+    }
+    .error {
+      color: #e74c3c;
+    }
+    .success {
+      color: green;
+    }
+
+    /* "Powered by Southeast Parking" text */
+    .powered-by {
+      font-size: 0.8rem;
+      color: #999;
+      margin-top: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    /* Disclaimer */
+    .disclaimer {
+      font-size: 0.85rem;
+      color: #666;
+      margin-top: 0.5rem;
+    }
+    .disclaimer a {
+      color: #666;
+      text-decoration: none;
+      border-bottom: 1px dotted #666;
+    }
+    .disclaimer a:hover {
+      text-decoration: underline;
+    }
+
+    /* Additional error message if Square fails entirely */
+    #square-fail {
+      margin-top: 1rem;
+      display: none;
+      font-size: 1rem;
+      color: #ce1e27;
+      font-weight: 600;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page-wrapper">
+    <div class="donation-card">
+      <h1>Make a Donation</h1>
+
+      <!-- License Plate Field -->
+      <div class="license-plate-field">
+        <label for="licensePlate">License Plate Number</label>
+        <input
+          type="text"
+          id="licensePlate"
+          placeholder="ABC123"
+        />
+      </div>
+
+      <!-- Donation Options -->
+      <div class="donation-options">
+        <label class="donation-option">
+          <input type="radio" name="donationOption" value="3" /> $3
+        </label>
+        <label class="donation-option">
+          <input type="radio" name="donationOption" value="5" /> $5
+        </label>
+        <label class="donation-option">
+          <input type="radio" name="donationOption" value="custom" />
+          <span>Other (min $5)</span>
+          <input type="number" id="customAmount" step="0.01" min="5" placeholder="5.00" disabled />
+        </label>
+      </div>
+
+      <!-- Square Payment Field -->
+      <div id="card-container"></div>
+      <button id="donate-button" class="donate-btn">Donate Now</button>
+
+      <!-- Error/Success Messages -->
+      <div id="error-msg" class="message error"></div>
+      <div id="success-msg" class="message success"></div>
+
+      <!-- "Powered by" text -->
+      <p class="powered-by">
+        Powered by Southeast Parking
+      </p>
+
+      <!-- Disclaimer -->
+      <p class="disclaimer">
+        By donating, you agree to 
+        <a href="https://squareup.com/us/en/legal/general/ua" target="_blank">Square’s Terms</a> &
+        <a href="https://squareup.com/us/en/legal/general/privacy" target="_blank">Privacy Policy</a>.
+      </p>
+
+      <!-- If Square fails entirely -->
+      <div id="square-fail">
+        Square.js not available. Please check your internet connection or try again later.
+      </div>
+    </div>
+  </div>
+
+  <!-- Basic Square Payment Logic (Sandbox Example) -->
+  <script>
+    document.addEventListener("DOMContentLoaded", async () => {
+      // 1) Check if Square loaded
+      if (!window.Square) {
+        alert("Square.js failed to load. Please refresh or check your connection.");
+        document.getElementById("square-fail").style.display = "block";
+        return;
+      }
+
+      // 2) Initialize Square Payments (Sandbox)
+      // Replace these with your actual SANDBOX credentials:
+      const payments = window.Square.payments(
+        "REPLACE_WITH_YOUR_SQUARE_APPLICATION_ID",
+        "REPLACE_WITH_YOUR_SQUARE_LOCATION_ID"
+      );
+
+      let card;
+      try {
+        card = await payments.card();
+        await card.attach("#card-container");
+      } catch (error) {
+        displayError("Failed to initialize card: " + error.message);
+        return;
+      }
+
+      // 3) Donation Option Handling
+      const customAmountField = document.getElementById("customAmount");
+      document.querySelectorAll('input[name="donationOption"]').forEach((btn) => {
+        btn.addEventListener("change", () => {
+          if (btn.value === "custom") {
+            customAmountField.disabled = false;
+            customAmountField.focus();
+          } else {
+            customAmountField.disabled = true;
+            customAmountField.value = "";
+          }
+        });
+      });
+
+      // 4) Handle "Donate Now" click
+      document.getElementById("donate-button").addEventListener("click", async () => {
+        clearMessages();
+
+        // Determine donation amount
+        const selectedOption = document.querySelector('input[name="donationOption"]:checked');
+        if (!selectedOption) {
+          displayError("Please select a donation amount.");
+          return;
+        }
+
+        let donationAmount = 0;
+        if (selectedOption.value === "3") {
+          donationAmount = 3;
+        } else if (selectedOption.value === "5") {
+          donationAmount = 5;
+        } else {
+          // custom
+          const customVal = parseFloat(customAmountField.value);
+          if (isNaN(customVal) || customVal < 5) {
+            displayError("Please enter a valid amount (min $5).");
+            return;
+          }
+          donationAmount = customVal;
+        }
+
+        try {
+          // Tokenize card details
+          const tokenResult = await card.tokenize();
+          if (tokenResult.status !== "OK") {
+            throw new Error(
+              tokenResult.errors ? tokenResult.errors[0].detail : "Card tokenization failed"
+            );
+          }
+
+          // Prepare data for server
+          const licensePlateValue = document.getElementById("licensePlate").value.trim();
+          const payload = {
+            token: tokenResult.token,
+            donationAmount,
+            licensePlate: licensePlateValue
+          };
+
+          // 5) Send to backend
+          // (Adjust if your server endpoint is different)
+          const response = await fetch("http://localhost:3000/donate", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+          });
+
+          const result = await response.json();
+          if (result.success) {
+            // Payment succeeded
+            displaySuccess("Thank you! Payment ID: " + result.paymentId);
+            // Optionally redirect
+            // window.location.href = "https://knoxvilleparking.com";
+          } else {
+            displayError(result.error || "Payment failed.");
+          }
+        } catch (err) {
+          displayError(err.message);
+        }
+      });
+
+      function displayError(msg) {
+        const el = document.getElementById("error-msg");
+        el.innerText = msg;
+        el.style.display = "block";
+      }
+
+      function displaySuccess(msg) {
+        const el = document.getElementById("success-msg");
+        el.innerText = msg;
+        el.style.display = "block";
+      }
+
+      function clearMessages() {
+        document.getElementById("error-msg").style.display = "none";
+        document.getElementById("success-msg").style.display = "none";
+      }
+    });
+  </script>
+</body>
+</html>
